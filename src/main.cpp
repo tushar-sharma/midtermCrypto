@@ -2,29 +2,37 @@
 #include <cstdlib>
 #include <stdint.h>
 #include <vector>
+#include "squareMultiply.h"
+#include "moduloInverse.h"
+#include "gcd.h"
 using namespace std;
+/* 
+ * AUTHOR : Tushar Sharma <ts362.njit.edu>
+*/
 
 typedef unsigned long long int BigInt;
-
-template <typename T>
-T squareMultiply(T base, T exp, T modulus) {
-  base %= modulus;
-  T result = 1;
-  while (exp > 0) {
-    if (exp & 1) result = (result * base) % modulus;
-    base = (base * base) % modulus;
-    exp >>= 1;
-  }
-  return result;
-}
 
 void getPrime(vector<int>& pPrime) 
 {
     //I'm skipping the primality test and factorization
     //Hard coding the values 
-    pPrime.push_back(2);
-    pPrime.push_back(3);
-    pPrime.push_back(17);
+    char c; 
+    BigInt factor;
+    cout<<"\nInserting prime factors\n";
+    cout << "\nPlease enter y to insert. n to abort: ";
+    cin>>c;
+    while (c != 'n') {
+        cout<<"\nEnter prime factor \n";
+        cin>>factor;
+        pPrime.push_back(factor);
+        cout<<"\nPlease enter y to insert. n to abort: ";
+        cin>>c;
+    }
+    cout<<"\n\nPrime Factors are \n";
+    for (BigInt i = 0; i < pPrime.size(); i++) {
+       cout<<pPrime[i]<<" ";
+    }
+    cout<<endl;
 }
 
 BigInt generator(BigInt p)
@@ -35,7 +43,7 @@ BigInt generator(BigInt p)
     //Get prime factor of `p'
     getPrime(pPrime);
 
-    for (BigInt i = 1; i < p; i++) {
+    for (BigInt i = 2; i < p - 1; i++) {
        int flag = 0;
        for (BigInt j = 0; j < pPrime.size(); j++) {
            if (squareMultiply(i, (p / pPrime[j]), p) == 1) 
@@ -107,15 +115,83 @@ void diffieHellman()
 
 }
 
+void elgamal()
+{
+
+    BigInt p, a, b, k, unity = 1;
+    cout<<"\nPlease enter modulus\n"; 
+    cin>>p; 
+
+    //Get the Generator 
+    BigInt g = generator(p);
+    g = 3;
+
+    if (g == -1) {
+        cout<<"\nGenerator not found\n";
+    } 
+    cout<<"\nGenerator is "<<g<<endl;
+
+    cout<<"\nEnter Alice's private key\n";
+    cin>>a;
+
+    BigInt aliceKey = squareMultiply(g, a, p);
+    cout<<"Alice public key is "<<aliceKey<<endl;
+
+    //Get Bob's private
+    cout<<"\nEnter Bob's private key\n";
+    cin>>b; 
+
+    BigInt bobKey = squareMultiply(g, b, p);
+    cout<<"Bob public key is "<<bobKey<<endl;
+
+    //Encryption by Alice 
+
+    //Get Alice's secret key
+    cout<<"\nEnter Alice's secret key\n";
+    cin>>k; 
+
+    BigInt aliceMask = squareMultiply(bobKey, k, p);
+    cout<<"\nAlice mask is "<<aliceMask<<endl;
+
+    if (aliceMask == unity) {
+        cout<<"\nPlease choose a different Mask\n";
+	exit(-1);
+    }
+
+    BigInt msg;
+    cout<<"\nEnter message \n";
+    cin>>msg;
+
+    BigInt aliceCipher = squareMultiply((aliceMask * msg), unity, p);
+    cout<<"\nAlice Cipher is "<<aliceCipher<<endl;
+
+    BigInt aliceH = squareMultiply(g, k, p);
+    cout<<"\nAlice computes H as "<<aliceH<<endl;
+
+    cout<<"\nAlice sends Ciphertext : "<<aliceCipher<<" & H : "<<aliceH<<" to Bob"<<endl;
+
+    /*************** Bob **************/
+    BigInt bobQ = p - 1 - b; 
+    cout<<"\nBob's Q is "<<bobQ<<endl; 
+
+    BigInt bobR = squareMultiply(aliceH, bobQ, p);
+    cout<<"\nBob's R is "<<bobR<<endl;
+
+    BigInt bobDecrypt = squareMultiply((aliceCipher * bobR), unity, p); 
+    cout<<"Bob's decrypted message is "<<bobDecrypt<<endl;
+
+   
+}
 int main(void)
 {
     int choice;
 
     cout << "\n"; //introduction
     cout << "*******************************************\n";
-    cout << "*             Please enter :              *\n";
+    cout << "*      Please enter your choice:          *\n";
     cout << "*  -----------------------------------    *\n";
     cout << "*     1  (Diffie-Hellman key-exchange)    *\n";
+    cout << "*     2  (El Gamal)                       *\n";
     cout << "*******************************************\n";
     cout << "\n";
 
@@ -125,6 +201,12 @@ int main(void)
         case 1:
 	    diffieHellman();
             break;
+        case 2:
+            elgamal();
+	    break;
+	default:
+	    cout<<"\nWrong choice. Please run program again.\n";
+	    exit(-1);
     }
     return 0;
 }
