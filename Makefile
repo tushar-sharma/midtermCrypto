@@ -7,6 +7,7 @@ compile:
 	g++  -I $(h) src/main.cpp -o  bin/main
 	g++  -I $(h) tests/squareMultiply.cpp -o  bin/squareMultiply
 	g++  -I $(h) tests/moduloInverse.cpp -o  bin/moduloInverse
+	g++  -I $(h) tests/gcd.cpp -o  bin/gcd
 
 
 run:
@@ -17,3 +18,5 @@ mod:
 
 inv:
 	./bin/moduloInverse
+gcd:
+	./bin/gcd
