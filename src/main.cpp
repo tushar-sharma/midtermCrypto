@@ -2,9 +2,9 @@
 #include <cstdlib>
 #include <stdint.h>
 #include <vector>
+#include "gcd.h"
 #include "squareMultiply.h"
 #include "moduloInverse.h"
-#include "gcd.h"
 using namespace std;
 /* 
  * AUTHOR : Tushar Sharma <ts362.njit.edu>
@@ -182,6 +182,52 @@ void elgamal()
 
    
 }
+
+BigInt getE(BigInt phi) 
+{
+    for (BigInt i = 2; i < phi; i++) {
+        if (gcd(i, phi) == 1) return i;
+    }
+    return (BigInt) -1;
+}
+
+void rsa() 
+{
+    BigInt p, q; 
+
+    cout<<"\nPlease enter two large numbers\n";
+    cin>>p>>q;
+
+    BigInt n = p * q; 
+    cout<<"\nn is "<<n<<endl; 
+
+    //calculate phi
+    BigInt phi = (p - 1) *  (q - 1);
+    cout<<"\ntotient function is "<<phi<<endl; 
+
+    BigInt e = getE(phi);
+    if (e == (BigInt) -1) {
+        cout<<"cannot find e coprime to "<<phi<<endl;
+	exit(-1);
+    }
+    cout<<"\ne is "<<e<<" which is coprime to "<<phi<<endl; 
+
+    BigInt d = moduloInverse(e, phi);
+    cout<<"\nd is "<<d<<endl;
+
+    //encryption
+    BigInt msg;
+    cout<<"Enter message\n";
+    cin>>msg;
+ 
+    BigInt c = squareMultiply(msg, e, n);
+    cout<<"\nCipher is "<<c<<endl;
+  
+    BigInt dmsg = squareMultiply(c, d, n);
+    cout<<"\nDecrypted Message is "<<dmsg<<endl;
+
+}
+
 int main(void)
 {
     int choice;
@@ -192,6 +238,7 @@ int main(void)
     cout << "*  -----------------------------------    *\n";
     cout << "*     1  (Diffie-Hellman key-exchange)    *\n";
     cout << "*     2  (El Gamal)                       *\n";
+    cout << "*     3  (RSA)                            *\n";
     cout << "*******************************************\n";
     cout << "\n";
 
@@ -203,6 +250,9 @@ int main(void)
             break;
         case 2:
             elgamal();
+	    break;
+        case 3:
+	    rsa();
 	    break;
 	default:
 	    cout<<"\nWrong choice. Please run program again.\n";

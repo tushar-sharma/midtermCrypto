@@ -50,7 +50,6 @@ T fish (T a, T p)
 
 template <typename T>
 T moduloInverse(T a , T b) {
-    std::cout<<"hello"<<"\n";
     /* calling gcd from "gcd.h" */
     if (gcd(a, b) != 1) {
         return -1;  //modulo inverse not found
