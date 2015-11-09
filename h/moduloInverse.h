@@ -25,16 +25,12 @@ T fish (T a, T p)
         return (T) 1; 
     }
 
-    for (T i = 0; i < store.size(); i++)
-        std::cout<<store[i]<<"  ";
-    std::cout<<"\n";
-
     //stage southern
     t = 0, b = 1 ; 
     T flag = (count + 1); 
     do {
         f  = store[count - 1];
-	std::cout<<"f is "<<f<<"\n";
+	//std::cout<<"f is "<<f<<"\n";
         h = (f * b  +  t); 
 	t = b;
 	b = h;
